@@ -78,23 +78,23 @@ int	ft_atoi_char(char c)
 	return (c - 48);
 }
 
-int	ft_dec_to_hex(int *values, char *base)
+char	*ft_dec_to_hex(int *values, char *base)
 {
 	int		i;
-	char	pr[9];
+	char	*pr;
 
 	i = 0;
+	pr = ft_calloc(9, sizeof(char));
 	while (i < 8)
 	{
 		pr[i] = base[values[i] % 16];
 		i++;
 	}
 	pr[8] = '\0';
-	ft_putstr_fd(pr, 1);
-	return (8);
+	return (pr);
 }
 
-int	ft_bin_to_hex(char *convert, char *base)
+char	*ft_bin_to_hex(char *convert, char *base)
 {
 	int		i;
 	int		i2;

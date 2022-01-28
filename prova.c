@@ -10,8 +10,8 @@ int main(void)
 
 	c = 0;
 
-	len = ft_printf("%11uis the biggest unsigned int", (unsigned int)-1);
+	len = ft_printf("%11x", (unsigned int)-1);
 	printf("\n%d\n", len);
-	len = printf("%11uis the biggest unsigned int", (unsigned int)-1);
+	len = printf("%11x", (unsigned int)-1);
 	printf("\n%d\n", len);
 }
