@@ -10,7 +10,18 @@ int	ft_treat_HEX(va_list args, t_print *arg)
 	base = "0123456789ABCDEF";
 	data = va_arg(args, unsigned int);
 	convert = ft_get_hex(data, base);
-	if (arg->width > ft_strlen(convert))
+	if (arg->minus && arg->width > ft_strlen(convert))
+	{
+		pr = ft_calloc(arg->width, sizeof(char));
+		ft_memset(pr, ' ', ft_strlen(convert));
+		ft_strlcpy(pr, convert, ft_strlen(convert) + 1);
+		ft_memset(&pr[ft_strlen(convert)], ' ', arg->width - ft_strlen(convert));
+		ft_putstr_fd(pr, 1);
+		data = ft_strlen(pr);
+		free(pr);
+		return (data);
+	}
+	else if (arg->width > ft_strlen(convert))
 	{
 		pr = ft_calloc(ft_strlen(convert), sizeof(char));
 		ft_memset(pr, ' ', ft_strlen(convert));
