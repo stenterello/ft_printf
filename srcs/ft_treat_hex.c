@@ -15,15 +15,15 @@ char	*ft_get_hex(int data, char *base)
 
 int	ft_treat_hex(va_list args, t_print *arg)
 {
-	int		data;
-	char	*convert;
-	char	*base;
-	char	*pr;
+	unsigned int	data;
+	char			*convert;
+	char			*base;
+	char			*pr;
 
 	base = "0123456789abcdef";
 	data = va_arg(args, unsigned int);
 	convert = ft_get_hex(data, base);
-	if (arg->minus && arg->width > ft_strlen(convert))
+	if (arg->minus && arg->width > ft_ptrnbrlen(data))
 	{
 		pr = ft_calloc(arg->width, sizeof(char));
 		ft_memset(pr, ' ', ft_strlen(convert));
@@ -32,9 +32,8 @@ int	ft_treat_hex(va_list args, t_print *arg)
 		ft_putstr_fd(pr, 1);
 		data = ft_strlen(pr);
 		free(pr);
-		return (data);
 	}
-	if (arg->width > ft_strlen(convert))
+	else if (arg->width > ft_ptrnbrlen(data))
 	{
 		pr = ft_calloc(arg->width, sizeof(char));
 		ft_memset(pr, ' ', ft_strlen(convert));
@@ -42,19 +41,20 @@ int	ft_treat_hex(va_list args, t_print *arg)
 		ft_putstr_fd(pr, 1);
 		data = ft_strlen(pr);
 		free(pr);
-		return (data);
 	}
 	else
 	{
-		if (data < 0)
+		if (arg->width)
 		{
-
-			ft_putstr_fd(convert, 1);
-			data = ft_strlen(convert);
-			free(convert);
+			pr = ft_calloc(arg->width, sizeof(char));
+			ft_memset(pr, ' ', arg->width);
+			ft_strlcpy(&pr[arg->width - ft_strlen(convert)], convert, arg->width - ft_strlen(convert) + 1);
+			ft_putstr_fd(pr, 1);
+			data = ft_strlen(pr);
+			free(pr);
 		}
 		else
-			data = ft_putnbr_base(data, base);
+			data = ft_putnbr_u_base(data, base);
 	}
 	free(convert);
 	return (data);

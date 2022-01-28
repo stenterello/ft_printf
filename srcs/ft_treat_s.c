@@ -48,6 +48,8 @@ int	ft_treat_s(va_list args, t_print *arg)
 			ft_putchar_fd(str[i], 1);
 	else if (arg->space && arg->width > (int)ft_strlen(str))
 		ft_fill_write_end_free(arg, str, 32);
+	else if (arg->minus && arg->width > (int)ft_strlen(str))
+		ft_fill_write_start_free(arg, str, 32);
 	else if (arg->width > (int)ft_strlen(str))
 		ft_fill_write_end_free(arg, str, 32);
 	else
