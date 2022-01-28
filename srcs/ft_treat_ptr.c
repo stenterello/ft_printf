@@ -1,22 +1,4 @@
 #include "../includes/ft_printf.h"
-/*
-int	ft_fill_and_write_ptr(size_t data, char c, t_print *arg)
-{
-	char	*pr;
-	char	*num;
-	int		len;
-
-	num = ft_
-	pr = ft_calloc(sizeof(char), arg->width + 1);
-	ft_memset(pr, c, arg->width);
-	ft_strlcpy(pr, data, arg->width + 1);
-	pr[arg->width] = c;
-	ft_putstr_fd(pr, 1);
-	len = ft_strlen(pr);
-	free(pr);
-	return (len);
-}
-*/
 
 int	ft_ptrnbrlen(size_t n)
 {
@@ -30,7 +12,7 @@ int	ft_ptrnbrlen(size_t n)
 	}
 	if (i > 10)
 		return (14);
-	return (i + 2);
+	return (i);
 }
 
 int	ft_fill_write_end_ptr(size_t data, char c, t_print *arg)
@@ -52,7 +34,6 @@ int	ft_fill_write_end_ptr(size_t data, char c, t_print *arg)
 int	ft_fill_write_start_ptr(size_t data, char c, t_print *arg)
 {
 	int	len;
-
 
 	len = 2;
 	ft_putstr_fd("0x", 1);
