@@ -17,3 +17,18 @@ int	ft_putnbr_u_base(unsigned long long nbr, char *base)
 	}
 	return (i);
 }
+
+int	ft_u_base_len(unsigned long long nbr, char *base)
+{
+	long	i;
+
+	i = 0;
+	if (nbr / (int)(ft_strlen(base)) > 0)
+	{
+		i += ft_u_base_len((nbr / (ft_strlen(base))), base);
+		i += ft_u_base_len((nbr % (ft_strlen(base))), base);
+	}
+	else
+		i++;
+	return (i);
+}

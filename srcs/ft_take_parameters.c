@@ -21,6 +21,9 @@ void	ft_take_parameters(const char *s, int *i, t_print *arg)
 	param[i2] = '\0';
 	(*i)--;
 	arg->flags = 1;
-	arg->width = ft_atoi(param);
+	if (!arg->dot)
+		arg->width = ft_atoi(param);
+	else
+		arg->prec = ft_atoi(param);
 	free(param);
 }

@@ -61,23 +61,60 @@ int	ft_treated_d_end(t_print *arg, int data, int c)
 	char	*data2;
 	int		l;
 
-	ret = ft_calloc(sizeof(char), (arg->width + 3));
-	ft_memset(ret, c, arg->width + 1);
 	data2 = ft_itoa(data);
 	l = ft_strlen(data2);
+	if (arg->width > arg->prec)
+	{
+		ret = ft_calloc(sizeof(char), (arg->width + 3));
+		ft_memset(ret, c, arg->width);
+	}
+	else if (arg->prec >= (int)ft_strlen(data2))
+	{
+		ret = ft_calloc(sizeof(char), (arg->prec + 1));
+		ft_memset(ret, c, arg->prec);
+	}
+	else
+		ret = ft_calloc(ft_strlen(data2), sizeof(char));
 	if (data > 0 && arg->plus)
 		ret[arg->width - l - 1] = '+';
-	else if (data < 0 && (arg->zero || arg->dot))
+	else if (data < 0 && arg->dot && arg->prec >= (int)ft_strlen(data2))
 	{
-		ft_strlcpy(&ret[arg->width - l + 2], &data2[1], l);
+		ft_strlcpy(&ret[arg->prec - l + 2], &data2[1], l);
+		ret[0] = '-';
+		ret[arg->prec + 1] = '\0';
+	}
+	else if (data < 0 && arg->zero)
+	{
+		ft_strlcpy(&ret[arg->width - l + 1], &data2[1], l);
 		ret[0] = '-';
 		ret[arg->width + 1] = '\0';
 	}
-	else
+	else if (!arg->prec && data == 0)
+	{
+		ft_putstr_fd(ret, 1);
+		l = ft_strlen(ret);
+		free(ret);
+		free(data2);
+		return (l);
+	}
+	else if (arg->prec > (int)ft_strlen(data2))
+	{
+		ft_strlcpy(&ret[arg->prec - l], data2, l + 1);
+		ret[arg->prec] = '\0';
+	}
+	else if (arg->width > (int)ft_strlen(data2))
 	{
 		ft_strlcpy(&ret[arg->width - l], data2, l + 1);
 		ret[arg->width] = '\0';
-	}	
+	}
+	else
+	{
+		ft_putstr_fd(data2, 1);
+		l = ft_strlen(data2);
+		free(data2);
+		free(ret);
+		return (l);
+	}
 	free(data2);
 	ft_putstr_fd(ret, 1);
 	l = ft_strlen(ret);
@@ -94,43 +131,23 @@ int	ft_treat_d(va_list args, t_print *arg)
 
 	data = (int)va_arg(args, int);
 	len = 0;
-	if (arg->minus && arg->width > ft_int_nbrlen(data))
+	if (arg->minus && arg->width > ft_int_nbrlen(data) && !arg->dot)
 		data = ft_treated_d_start(arg, data, ' ');
-	else if ((arg->zero || arg->dot) && arg->width > ft_dot_nbrlen(data))
+	else if (arg->zero && arg->width > ft_int_nbrlen(data))
+		data = ft_treated_d_end(arg, data, '0');
+	else if (arg->width > arg->prec)
+		data = ft_treated_d_end(arg, data, ' ');
+	else if (arg->prec > arg->width)
+		data = ft_treated_d_end(arg, data, '0');
+	else if (arg->dot && !arg->prec && data == 0)
+		return (0);
+	else if (arg->dot)
 		data = ft_treated_d_end(arg, data, '0');
 	else if ((arg->hash || arg->space) && arg->width > ft_int_nbrlen(data))
 		data = ft_treated_d_end(arg, data, ' ');
-	//else if (arg->dot)
-	//{
-	//	if (data < 0)
-	//	{
-	//		ft_putchar_fd('-', 1);
-	//		data *= -1;
-	//		len += 1;
-	//		ret = ft_itoa(data);
-	//		while (len < arg->width - (int)ft_strlen(ret) + 1)
-	//		{
-	//			ft_putchar_fd('0', 1);
-	//			len += 1;
-	//		}
-	//	}
-	//	else
-	//	{
-	//		ret = ft_itoa(data);
-	//		while (len < arg->width - (int)ft_strlen(ret))
-	//		{
-	//			ft_putchar_fd('0', 1);
-	//			len += 1;
-	//		}
-	//	}
-	//	ft_putstr_fd(ret, 1);
-	//	len += ft_strlen(ret);
-	//	free(ret);
-	//	return (len);
-	//}
 	else if (arg->plus && !arg->width)
 	{
-		if (data > 0)
+		if (data >= 0)
 		{
 			ft_putchar_fd('+', 1);
 			len = 1;
@@ -141,10 +158,35 @@ int	ft_treat_d(va_list args, t_print *arg)
 		free(data2);
 		return (len);
 	}
+	else if (arg->space)
+	{
+		if (data < 0)
+		{
+			ft_putchar_fd('-', 1);
+			len += 1;
+		}
+		while (len <= arg->width)
+		{
+			ft_putchar_fd(' ', 1);
+			len++;
+		}
+		ret = ft_itoa(data);
+		if (data < 0)
+		{
+			ft_putstr_fd(&ret[1], 1);
+			data = ft_strlen(ret) + len;
+		}
+		else
+		{
+			ft_putstr_fd(ret, 1);
+			data = ft_strlen(ret) + len;
+		}
+		free(ret);
+	}
 	else if (arg->plus && arg->width)
-		ft_treated_d_end(arg, data, ' ');
+		data = ft_treated_d_end(arg, data, ' ');
 	else if (arg->width > ft_int_nbrlen(data))
-		ft_treated_d_end(arg, data, ' ');
+		data = ft_treated_d_end(arg, data, ' ');
 	else
 	{
 		ft_putnbr_fd(data, 1);

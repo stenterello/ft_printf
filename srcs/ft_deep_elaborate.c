@@ -11,9 +11,12 @@ int	ft_deep_elaborate(const char *s, int *i, va_list args)
 	arg = ft_init_flags();
 	if (ft_isflag(s[*i]))
 		ft_take_flag(s[(*i)++], &arg);
-	while (ft_isdigit(s[*i]))
+	while (ft_isdigit(s[*i]) || ft_isflag(s[*i]))
 	{
-		ft_take_parameters(s, i, &arg);
+		if (ft_isdigit(s[*i]))
+			ft_take_parameters(s, i, &arg);
+		else
+			ft_take_flag(s[(*i)], &arg);
 		(*i)++;
 	}
 	if (ft_istype(s[*i]))

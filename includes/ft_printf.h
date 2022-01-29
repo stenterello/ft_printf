@@ -63,5 +63,6 @@ void	ft_u_putnbr(unsigned int n, char *str, int *i);
 int		ft_hexnbrlen(unsigned int data);
 void	ft_putnbr(long n, char *str, int *i);
 char	*ft_get_pos_hex(int data, char *base);
+int		ft_u_base_len(unsigned long long nbr, char *base);
 
 #endif
