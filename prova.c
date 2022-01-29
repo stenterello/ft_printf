@@ -10,8 +10,8 @@ int main(void)
 
 	c = 0;
 
-	len = ft_printf(" |%-3x| ", 15);
+	len = ft_printf(" |%04d| ", 9);
 	printf("\n%d\n", len);
-	len = printf(" |%-3x| ", 15);
+	len = printf(" |%04d| ", 9);
 	printf("\n%d\n", len);
 }

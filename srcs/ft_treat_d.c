@@ -20,121 +20,95 @@ int	ft_int_nbrlen(int n)
 	return (i);
 }
 
+int	ft_treated_d_start(t_print *arg, int data, int c)
+{
+	char	*ret;
+	char	*data2;
+
+	ret = ft_calloc(sizeof(char), (arg->width + 2));
+	ft_memset(ret, c, arg->width);
+	data2 = ft_itoa(data);
+	ft_strlcpy(ret, data2, ft_strlen(data2) + 1);
+	ret[ft_strlen(data2)] = c;
+	ret[arg->width] = '\0';
+	free(data2);
+	ft_putstr_fd(ret, 1);
+	free(ret);
+	return (arg->width);
+}
+
+int	ft_treated_d_end(t_print *arg, int data, int c)
+{
+	char	*ret;
+	char	*data2;
+	int		l;
+
+	ret = ft_calloc(sizeof(char), (arg->width + 2));
+	ft_memset(ret, c, arg->width);
+	data2 = ft_itoa(data);
+	l = ft_strlen(data2);
+	if (data > 0 && arg->plus)
+		ret[arg->width - l - 1] = '+';
+	else if (data < 0 && arg->zero)
+	{
+		ft_strlcpy(&ret[arg->width - l + 1], &data2[1], l);
+		ret[0] = '-';
+	}
+	else
+		ft_strlcpy(&ret[arg->width - l], data2, l + 1);
+	ret[arg->width] = '\0';
+	free(data2);
+	ft_putstr_fd(ret, 1);
+	free(ret);
+	return (arg->width);
+}
+
 int	ft_treat_d(va_list args, t_print *arg)
 {
 	int		data;
 	char	*ret;
 	char	*data2;
-	int		ret2;
 	int		len;
 
 	data = (int)va_arg(args, int);
 	len = 0;
-	if (arg->flags)
+	if (arg->minus && arg->width > ft_int_nbrlen(data))
+		data = ft_treated_d_start(arg, data, ' ');
+	else if ((arg->zero || arg->dot) && arg->width > ft_int_nbrlen(data))
+		data = ft_treated_d_end(arg, data, '0');
+	else if ((arg->hash || arg->space) && arg->width > ft_int_nbrlen(data))
+		data = ft_treated_d_end(arg, data, ' ');
+	//else if (arg->space)
+	//{
+	//	ft_putchar_fd(' ', 1);
+	//	data2 = ft_itoa(data);
+	//	ft_putstr_fd(data2, 1);
+	//	free(data2);
+	//	return (ft_int_nbrlen(data) + 1);
+	//}
+	else if (arg->plus && !arg->width)
 	{
-		if (arg->minus && arg->width > ft_int_nbrlen(data))
+		if (data > 0)
 		{
-			ret = ft_calloc(sizeof(char), (arg->width + 2));
-			ft_memset(ret, ' ', arg->width);
-			data2 = ft_itoa(data);
-			ft_strlcpy(ret, data2, ft_strlen(data2) + 1);
-			ret[ft_strlen(data2)] = ' ';
-			ret[arg->width] = '\0';
-			free(data2);
-			ft_putstr_fd(ret, 1);
-			free(ret);
-			return (arg->width);
+			ft_putchar_fd('+', 1);
+			len = 1;
 		}
-		else if ((arg->zero || arg->dot) && arg->width > ft_int_nbrlen(data))
-		{
-			ret = ft_calloc(sizeof(char), (arg->width + 1));
-			ft_memset(ret, 48, arg->width);
-			data2 = ft_itoa(data);
-			len = ft_strlen(data2);
-			ft_strlcpy(&ret[arg->width - len], data2, len + 1);
-			ret[arg->width] = '\0';
-			free(data2);
-			ft_putstr_fd(ret, 1);
-			free(ret);
-			return (arg->width);
-		}
-		else if ((arg->hash || arg->space) && arg->width > ft_int_nbrlen(data))
-		{
-			ret = ft_calloc(sizeof(char), (arg->width + 1));
-			ft_memset(ret, ' ', arg->width);
-			data2 = ft_itoa(data);
-			len = ft_strlen(data2);
-			ft_strlcpy(&ret[arg->width - len], data2, len + 1);
-			ret[len] = ' ';
-			ret[arg->width] = '\0';
-			free(data2);
-			ft_putstr_fd(ret, 1);
-			free(ret);
-			return (arg->width);
-		}
-		else if (arg->space)
-		{
-			ft_putchar_fd(' ', 1);
-			data2 = ft_itoa(data);
-			ft_putstr_fd(data2, 1);
-			free(data2);
-			return (ft_int_nbrlen(data) + 1);
-		}
-		else if (arg->plus && !arg->width)
-		{
-			if (data > 0)
-			{
-				ft_putchar_fd('+', 1);
-				len = 1;
-			}
-			data2 = ft_itoa(data);
-			ft_putstr_fd(data2, 1);
-			len += ft_strlen(data2);
-			free(data2);
-			return (len);
-		}
-		else if (arg->plus && arg->width)
-		{
-			ret = ft_calloc(sizeof(char), (arg->width + 1));
-			ft_memset(ret, ' ', arg->width);
-			data2 = ft_itoa(data);
-			len = ft_strlen(data2);
-			ft_strlcpy(&ret[arg->width - len], data2, len + 1);
-			ret[len] = ' ';
-			ret[arg->width] = '\0';
-			if (data > 0)
-				ret[arg->width - len - 1] = '+';
-			free(data2);
-			ft_putstr_fd(ret, 1);
-			free(ret);
-			return (arg->width);
-		}
-		else if (arg->width > ft_int_nbrlen(data))
-		{
-			ret = ft_calloc(sizeof(char), (arg->width + 2));
-			ft_memset(ret, ' ', arg->width);
-			data2 = ft_itoa(data);
-			ft_strlcpy(&ret[arg->width - ft_strlen(data2)], data2, ft_strlen(data2) + 1);
-			ret[arg->width] = '\0';
-			free(data2);
-			ft_putstr_fd(ret, 1);
-			free(ret);
-			return (arg->width);
-		}
-		else
-		{
-			ft_putnbr_fd(data, 1);
-			ret = ft_itoa(data);
-			ret2 = ft_strlen(ret);
-			free(ret);
-		}
+		data2 = ft_itoa(data);
+		ft_putstr_fd(data2, 1);
+		len += ft_strlen(data2);
+		free(data2);
+		return (len);
 	}
+	else if (arg->plus && arg->width)
+		ft_treated_d_end(arg, data, ' ');
+	else if (arg->width > ft_int_nbrlen(data))
+		ft_treated_d_end(arg, data, ' ');
 	else
 	{
 		ft_putnbr_fd(data, 1);
 		ret = ft_itoa(data);
-		ret2 = ft_strlen(ret);
+		data = ft_strlen(ret);
 		free(ret);
 	}
-	return (ret2);
+	return (data);
 }
