@@ -68,6 +68,7 @@ int	ft_treat_ptr(va_list args, t_print *arg)
 		count += 2;
 		count += ft_putnbr_base_ptr(data, base);
 	}
-	free(convert);
+	if (ft_strncmp(convert, "80000000", 9))
+		free(convert);
 	return (count);
 }

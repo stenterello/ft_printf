@@ -56,9 +56,12 @@ int		ft_unbrlen(unsigned int n);
 int		ft_int_nbrlen(int n);
 int		ft_ptrnbrlen(size_t data);
 int		ft_putnbr_base_ptr(size_t nbr, char *base);
-void	ft_fill_write_start_free(t_print *arg, char *str, char c);
-void	ft_fill_write_end_free(t_print *arg, char *str, char c);
+int		ft_fill_write_start_free(t_print *arg, char *str, char c);
+int		ft_fill_write_end_free(t_print *arg, char *str, char c);
 char	*ft_utoa(unsigned int n);
 void	ft_u_putnbr(unsigned int n, char *str, int *i);
+int		ft_hexnbrlen(unsigned int data);
+void	ft_putnbr(long n, char *str, int *i);
+char	*ft_get_pos_hex(int data, char *base);
 
 #endif

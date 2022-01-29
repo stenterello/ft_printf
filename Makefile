@@ -24,6 +24,8 @@ SRCSFLS = ft_printf.c \
 			ft_putnbr_u_fd.c \
 			ft_puthex.c \
 			ft_int_to_hex.c \
+			ft_unbrlen.c \
+			ft_utoa.c \
 			synthesis.c 
 
 SRCS =  $(addprefix srcs/, $(SRCSFLS))

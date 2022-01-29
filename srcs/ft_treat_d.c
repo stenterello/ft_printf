@@ -20,6 +20,24 @@ int	ft_int_nbrlen(int n)
 	return (i);
 }
 
+
+int	ft_dot_nbrlen(int n)
+{
+	int	i;
+
+	i = 1;
+	if (n == -2147483648)
+		return (10);
+	if (n < 0)
+		n *= -1;
+	while (n > 9)
+	{
+		n /= 10;
+		i++;
+	}
+	return (i);
+}
+
 int	ft_treated_d_start(t_print *arg, int data, int c)
 {
 	char	*ret;
@@ -43,24 +61,28 @@ int	ft_treated_d_end(t_print *arg, int data, int c)
 	char	*data2;
 	int		l;
 
-	ret = ft_calloc(sizeof(char), (arg->width + 2));
-	ft_memset(ret, c, arg->width);
+	ret = ft_calloc(sizeof(char), (arg->width + 3));
+	ft_memset(ret, c, arg->width + 1);
 	data2 = ft_itoa(data);
 	l = ft_strlen(data2);
 	if (data > 0 && arg->plus)
 		ret[arg->width - l - 1] = '+';
-	else if (data < 0 && arg->zero)
+	else if (data < 0 && (arg->zero || arg->dot))
 	{
-		ft_strlcpy(&ret[arg->width - l + 1], &data2[1], l);
+		ft_strlcpy(&ret[arg->width - l + 2], &data2[1], l);
 		ret[0] = '-';
+		ret[arg->width + 1] = '\0';
 	}
 	else
+	{
 		ft_strlcpy(&ret[arg->width - l], data2, l + 1);
-	ret[arg->width] = '\0';
+		ret[arg->width] = '\0';
+	}	
 	free(data2);
 	ft_putstr_fd(ret, 1);
+	l = ft_strlen(ret);
 	free(ret);
-	return (arg->width);
+	return (l);
 }
 
 int	ft_treat_d(va_list args, t_print *arg)
@@ -74,17 +96,37 @@ int	ft_treat_d(va_list args, t_print *arg)
 	len = 0;
 	if (arg->minus && arg->width > ft_int_nbrlen(data))
 		data = ft_treated_d_start(arg, data, ' ');
-	else if ((arg->zero || arg->dot) && arg->width > ft_int_nbrlen(data))
+	else if ((arg->zero || arg->dot) && arg->width > ft_dot_nbrlen(data))
 		data = ft_treated_d_end(arg, data, '0');
 	else if ((arg->hash || arg->space) && arg->width > ft_int_nbrlen(data))
 		data = ft_treated_d_end(arg, data, ' ');
-	//else if (arg->space)
+	//else if (arg->dot)
 	//{
-	//	ft_putchar_fd(' ', 1);
-	//	data2 = ft_itoa(data);
-	//	ft_putstr_fd(data2, 1);
-	//	free(data2);
-	//	return (ft_int_nbrlen(data) + 1);
+	//	if (data < 0)
+	//	{
+	//		ft_putchar_fd('-', 1);
+	//		data *= -1;
+	//		len += 1;
+	//		ret = ft_itoa(data);
+	//		while (len < arg->width - (int)ft_strlen(ret) + 1)
+	//		{
+	//			ft_putchar_fd('0', 1);
+	//			len += 1;
+	//		}
+	//	}
+	//	else
+	//	{
+	//		ret = ft_itoa(data);
+	//		while (len < arg->width - (int)ft_strlen(ret))
+	//		{
+	//			ft_putchar_fd('0', 1);
+	//			len += 1;
+	//		}
+	//	}
+	//	ft_putstr_fd(ret, 1);
+	//	len += ft_strlen(ret);
+	//	free(ret);
+	//	return (len);
 	//}
 	else if (arg->plus && !arg->width)
 	{
