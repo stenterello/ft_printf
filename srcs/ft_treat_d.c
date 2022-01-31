@@ -100,7 +100,7 @@ int	ft_print_d_end(t_print *arg, int data, char c, int measure)
 	char	*data2;
 
 	data2 = ft_itoa(data);
-	if (data < 0 && arg->prec && !arg->zero)
+	if (data < 0 && arg->prec)
 	{
 		ret = ft_calloc(measure + 1, sizeof(char));
 		ft_memset(ret, c, measure + 1);
