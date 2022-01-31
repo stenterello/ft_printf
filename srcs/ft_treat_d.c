@@ -20,7 +20,6 @@ int	ft_int_nbrlen(int n)
 	return (i);
 }
 
-
 int	ft_dot_nbrlen(int n)
 {
 	int	i;
@@ -38,183 +37,152 @@ int	ft_dot_nbrlen(int n)
 	return (i);
 }
 
-int	ft_treated_d_start(t_print *arg, int data, int c)
+int	ft_print_d_start(t_print *arg, int data, char c, int measure)
 {
 	char	*ret;
 	char	*data2;
 
-	ret = ft_calloc(sizeof(char), (arg->width + 2));
-	ft_memset(ret, c, arg->width);
 	data2 = ft_itoa(data);
-	ft_strlcpy(ret, data2, ft_strlen(data2) + 1);
-	ret[ft_strlen(data2)] = c;
-	ret[arg->width] = '\0';
-	free(data2);
+	ret = NULL;
+	if (arg->width && !arg->prec)
+	{
+		ret = ft_calloc(measure, sizeof(char));
+		ft_memset(ret, c, measure);
+		if (data != 0)
+			ft_strlcpy(ret, data2, ft_strlen(data2) + 1);
+		else if (data == 0 && arg->width && !arg->dot)
+			ft_strlcpy(ret, data2, ft_strlen(data2) + 1);
+		if (arg->width > (int)ft_strlen(data2))
+			ret[ft_strlen(data2)] = c;
+	}
+	else
+	{
+		if (data < 0 && measure == arg->prec)
+		{
+			ret = ft_calloc(measure + 1, sizeof(char));
+			ft_memset(ret, c, measure + 1);
+			ft_memset(ret, 48, arg->prec + 1);
+		}
+		else
+		{
+			ret = ft_calloc(measure, sizeof(char));
+			ft_memset(ret, c, measure);
+			ft_memset(ret, 48, arg->prec);
+		}
+		if (arg->prec > ft_dot_nbrlen(data) && data >= 0)
+		{
+			ft_strlcpy(&ret[arg->prec - ft_strlen(data2)], data2, ft_strlen(data2) + 1);
+			ret[arg->prec] = c;
+		}
+		else if (arg->prec > ft_dot_nbrlen(data) && data < 0)
+		{
+			ft_strlcpy(&ret[arg->prec - ft_dot_nbrlen(data) + 1], &data2[1], ft_dot_nbrlen(data) + 1);
+			ret[arg->prec + 1] = c;
+			ret[0] = '-';
+		}
+		else
+		{
+			ft_strlcpy(ret, data2, ft_strlen(data2) + 1);
+			if ((int)ft_strlen(data2) != measure)
+				ret[ft_strlen(data2)] = c;
+		}
+	}
 	ft_putstr_fd(ret, 1);
+	data = ft_strlen(ret);
 	free(ret);
-	return (arg->width);
+	free(data2);
+	return (data);
 }
 
-int	ft_treated_d_end(t_print *arg, int data, int c)
+int	ft_print_d_end(t_print *arg, int data, char c, int measure)
 {
 	char	*ret;
 	char	*data2;
-	int		l;
 
 	data2 = ft_itoa(data);
-	l = ft_strlen(data2);
-	if (arg->width > arg->prec)
+	if (data < 0 && arg->prec && !arg->zero)
 	{
-		ret = ft_calloc(sizeof(char), (arg->width + 3));
-		ft_memset(ret, c, arg->width);
+		ret = ft_calloc(measure + 1, sizeof(char));
+		ft_memset(ret, c, measure + 1);
+		ft_strlcpy(&ret[measure - ft_dot_nbrlen(data) + 1], &data2[1], ft_int_nbrlen(data) + 1);
 	}
-	else if (arg->prec >= (int)ft_strlen(data2))
+	else if (data < 0 && arg->zero && arg->width > (int)ft_strlen(data2))
 	{
-		ret = ft_calloc(sizeof(char), (arg->prec + 1));
-		ft_memset(ret, c, arg->prec);
+		ret = ft_calloc(measure + 1, sizeof(char));
+		ft_memset(ret, c, measure);
+		ft_strlcpy(&ret[measure - ft_dot_nbrlen(data)], &data2[1], ft_int_nbrlen(data) + 1);
 	}
-	else
+	else if (data < 0 && arg->zero && arg->width < (int)ft_strlen(data2))
+	{
 		ret = ft_calloc(ft_strlen(data2), sizeof(char));
-	if (data > 0 && arg->plus)
-		ret[arg->width - l - 1] = '+';
-	else if (data < 0 && arg->dot && arg->prec >= (int)ft_strlen(data2))
-	{
-		ft_strlcpy(&ret[arg->prec - l + 2], &data2[1], l);
-		ret[0] = '-';
-		ret[arg->prec + 1] = '\0';
+		ft_strlcpy(ret, data2, ft_strlen(data2) + 1);
 	}
-	else if (data < 0 && arg->zero)
+	else if (arg->dot && !arg->prec && data == 0)
 	{
-		ft_strlcpy(&ret[arg->width - l + 1], &data2[1], l);
-		ret[0] = '-';
-		ret[arg->width + 1] = '\0';
+		ret = ft_calloc(measure, sizeof(char));
+		ft_memset(ret, 32, measure);
 	}
-	else if (!arg->prec && data == 0 && !arg->width)
+	else if (arg->zero && arg->width < (int)ft_strlen(data2))
 	{
-		ft_strlcpy(&ret[arg->width - l], data2, l + 1);
-		ret[arg->width] = '\0';
-		ft_putstr_fd(ret, 1);
-		l = ft_strlen(ret);
-		free(ret);
-		free(data2);
-		return (l);
-	}
-	else if (!arg->prec && data == 0 && arg->width <= ft_int_nbrlen(data))
-	{
-		ft_strlcpy(&ret[arg->width - ft_int_nbrlen(data)], data2, ft_int_nbrlen(data) + 1);
-		ft_putstr_fd(ret, 1);
-		l = ft_strlen(ret);
-		free(ret);
-		free(data2);
-		return (l);
-	}
-	else if (arg->prec > (int)ft_strlen(data2) && arg->width < arg->prec)
-	{
-		ft_strlcpy(&ret[arg->prec - l], data2, l + 1);
-		ret[arg->prec] = '\0';
-	}
-	else if (arg->prec > (int)ft_strlen(data2) && arg->width)
-	{
-		ft_memset(ret, '0', arg->width - arg->prec);
-		ft_strlcpy(&ret[arg->width - arg->prec - l], data2, l + 1);
-		ret[arg->prec] = c;
-		ret[arg->width] = '\0';
-	}
-	else if (arg->width > (int)ft_strlen(data2))
-	{
-		ft_strlcpy(&ret[arg->width - l], data2, l + 1);
-		ret[arg->width] = '\0';
+		ret = ft_calloc(ft_strlen(data2), sizeof(char));
+		ft_strlcpy(ret, data2, ft_strlen(data2) + 1);
 	}
 	else
 	{
-		ft_putstr_fd(data2, 1);
-		l = ft_strlen(data2);
-		free(data2);
-		free(ret);
-		return (l);
+		ret = ft_calloc(measure, sizeof(char));
+		ft_memset(ret, c, measure);
+		if (data != 0)
+			ft_strlcpy(&ret[measure - ft_int_nbrlen(data)], data2, ft_int_nbrlen(data) + 1);
 	}
-	free(data2);
+	if ((arg->prec || arg->zero) && data < 0 && measure >= ft_dot_nbrlen(data))
+	{
+		ret[0] = '-';
+		ret[measure + 1] = '\0';
+	}
+	else if (arg->prec && arg->prec < arg->width)
+	{
+		ft_memset(&ret[measure - arg->prec], 48, arg->prec);
+		ft_strlcpy(&ret[arg->width - ft_strlen(data2)], data2, ft_strlen(data2) + 1);
+		ret[arg->prec] = c;
+	}
+	else if (measure > (int)ft_strlen(data2))
+		ret[measure] = '\0';
 	ft_putstr_fd(ret, 1);
-	l = ft_strlen(ret);
+	data = ft_strlen(ret);
 	free(ret);
-	return (l);
+	free(data2);
+	return (data);
 }
 
 int	ft_treat_d(va_list args, t_print *arg)
 {
 	int		data;
-	char	*ret;
-	char	*data2;
 	int		len;
 
 	data = (int)va_arg(args, int);
 	len = 0;
-	if (arg->minus && arg->width >= ft_int_nbrlen(data) && !arg->dot)
-		data = ft_treated_d_start(arg, data, ' ');
-	else if (arg->width >= ft_int_nbrlen(data) && !arg->dot)
-		data = ft_treated_d_end(arg, data, ' ');
-	else if (arg->minus && arg->width > ft_int_nbrlen(data) && arg->dot)
-		data = ft_treated_d_end(arg, data, ' ');
-	else if (arg->zero && arg->width > ft_int_nbrlen(data))
-		data = ft_treated_d_end(arg, data, '0');
-	else if (arg->width > arg->prec)
-		data = ft_treated_d_end(arg, data, ' ');
-	else if (arg->prec > arg->width)
-		data = ft_treated_d_end(arg, data, '0');
-	else if (arg->dot && !arg->prec && data == 0)
+	if (arg->dot && arg->prec >= arg->width && arg->prec >= ft_dot_nbrlen(data))
+		data = ft_print_d_end(arg, data, 48, arg->prec);
+	else if (arg->dot && !arg->prec && data == 0 && !arg->width)
 		return (0);
-	else if (arg->dot)
-		data = ft_treated_d_end(arg, data, '0');
-	else if ((arg->hash || arg->space) && arg->width > ft_int_nbrlen(data))
-		data = ft_treated_d_end(arg, data, ' ');
-	else if (arg->plus && !arg->width)
-	{
-		if (data >= 0)
-		{
-			ft_putchar_fd('+', 1);
-			len = 1;
-		}
-		data2 = ft_itoa(data);
-		ft_putstr_fd(data2, 1);
-		len += ft_strlen(data2);
-		free(data2);
-		return (len);
-	}
-	else if (arg->space)
-	{
-		if (data < 0)
-		{
-			ft_putchar_fd('-', 1);
-			len += 1;
-		}
-		while (len <= arg->width)
-		{
-			ft_putchar_fd(' ', 1);
-			len++;
-		}
-		ret = ft_itoa(data);
-		if (data < 0)
-		{
-			ft_putstr_fd(&ret[1], 1);
-			data = ft_strlen(ret);
-		}
-		else
-		{
-			ft_putstr_fd(ret, 1);
-			data = ft_strlen(ret) + len;
-		}
-		free(ret);
-	}
-	else if (arg->plus && arg->width)
-		data = ft_treated_d_end(arg, data, ' ');
-	else if (arg->width > ft_int_nbrlen(data))
-		data = ft_treated_d_end(arg, data, ' ');
+	else if (arg->minus && arg->width && arg->width > arg->prec)
+		data = ft_print_d_start(arg, data, 32, arg->width);
+	else if (arg->minus && arg->width && arg->prec > arg->width && arg->prec > ft_dot_nbrlen(data))
+		data = ft_print_d_start(arg, data, 32, arg->prec);
+	else if (arg->minus && arg->width && !arg->dot)
+		data = ft_print_d_start(arg, data, 32, arg->width);
+	else if (arg->width > ft_int_nbrlen(data) && !arg->dot && !arg->zero)
+		data = ft_print_d_end(arg, data, 32, arg->width);
+	else if (arg->prec > ft_dot_nbrlen(data) && !arg->width)
+		data = ft_print_d_end(arg, data, 48, arg->prec);
+	else if (arg->zero && !arg->dot)
+		data = ft_print_d_end(arg, data, 48, arg->width);
+	else if (arg->zero)
+		data = ft_print_d_end(arg, data, 32, arg->width);
 	else
 	{
 		ft_putnbr_fd(data, 1);
-		ret = ft_itoa(data);
-		data = ft_strlen(ret);
-		free(ret);
+		return (ft_int_nbrlen(data));
 	}
 	return (data);
 }
