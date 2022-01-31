@@ -91,6 +91,8 @@ int	ft_treated_d_end(t_print *arg, int data, int c)
 	}
 	else if (!arg->prec && data == 0)
 	{
+		ft_strlcpy(&ret[arg->width - l], data2, l + 1);
+		ret[arg->width] = '\0';
 		ft_putstr_fd(ret, 1);
 		l = ft_strlen(ret);
 		free(ret);

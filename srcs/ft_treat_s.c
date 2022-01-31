@@ -44,9 +44,11 @@ int	ft_treat_s(va_list args, t_print *arg)
 
 	i = 0;
 	str = (char *)va_arg(args, char *);
-	if (!str)
+	if (!str && (!arg->prec || arg->prec >= 6))
 		str = "(null)";
-	if (arg->minus && arg->dot)
+	else if (!str)
+		return (0);
+	if (arg->minus && arg->dot && arg->width)
 	{
 		ret = ft_calloc(arg->width + 1, sizeof(char));
 		ft_memset(ret, ' ', arg->width);
