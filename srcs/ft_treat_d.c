@@ -89,7 +89,7 @@ int	ft_treated_d_end(t_print *arg, int data, int c)
 		ret[0] = '-';
 		ret[arg->width + 1] = '\0';
 	}
-	else if (!arg->prec && data == 0)
+	else if (!arg->prec && data == 0 && !arg->width)
 	{
 		ft_strlcpy(&ret[arg->width - l], data2, l + 1);
 		ret[arg->width] = '\0';
@@ -99,10 +99,26 @@ int	ft_treated_d_end(t_print *arg, int data, int c)
 		free(data2);
 		return (l);
 	}
-	else if (arg->prec > (int)ft_strlen(data2))
+	else if (!arg->prec && data == 0 && arg->width <= ft_int_nbrlen(data))
+	{
+		ft_strlcpy(&ret[arg->width - ft_int_nbrlen(data)], data2, ft_int_nbrlen(data) + 1);
+		ft_putstr_fd(ret, 1);
+		l = ft_strlen(ret);
+		free(ret);
+		free(data2);
+		return (l);
+	}
+	else if (arg->prec > (int)ft_strlen(data2) && arg->width < arg->prec)
 	{
 		ft_strlcpy(&ret[arg->prec - l], data2, l + 1);
 		ret[arg->prec] = '\0';
+	}
+	else if (arg->prec > (int)ft_strlen(data2) && arg->width)
+	{
+		ft_memset(ret, '0', arg->width - arg->prec);
+		ft_strlcpy(&ret[arg->width - arg->prec - l], data2, l + 1);
+		ret[arg->prec] = c;
+		ret[arg->width] = '\0';
 	}
 	else if (arg->width > (int)ft_strlen(data2))
 	{
@@ -133,8 +149,12 @@ int	ft_treat_d(va_list args, t_print *arg)
 
 	data = (int)va_arg(args, int);
 	len = 0;
-	if (arg->minus && arg->width > ft_int_nbrlen(data) && !arg->dot)
+	if (arg->minus && arg->width >= ft_int_nbrlen(data) && !arg->dot)
 		data = ft_treated_d_start(arg, data, ' ');
+	else if (arg->width >= ft_int_nbrlen(data) && !arg->dot)
+		data = ft_treated_d_end(arg, data, ' ');
+	else if (arg->minus && arg->width > ft_int_nbrlen(data) && arg->dot)
+		data = ft_treated_d_end(arg, data, ' ');
 	else if (arg->zero && arg->width > ft_int_nbrlen(data))
 		data = ft_treated_d_end(arg, data, '0');
 	else if (arg->width > arg->prec)
@@ -176,7 +196,7 @@ int	ft_treat_d(va_list args, t_print *arg)
 		if (data < 0)
 		{
 			ft_putstr_fd(&ret[1], 1);
-			data = ft_strlen(ret) + len;
+			data = ft_strlen(ret);
 		}
 		else
 		{
