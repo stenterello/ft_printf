@@ -12,7 +12,7 @@ int	ft_ptrnbrlen(size_t n)
 	}
 	if (i > 10)
 		return (14);
-	return (i);
+	return (i + 2);
 }
 
 int	ft_fill_write_end_ptr(size_t data, char c, t_print *arg)
@@ -45,7 +45,6 @@ int	ft_fill_write_start_ptr(size_t data, char c, t_print *arg)
 	}
 	return (len);
 }
-
 
 int	ft_treat_ptr(va_list args, t_print *arg)
 {

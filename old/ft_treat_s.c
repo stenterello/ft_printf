@@ -39,17 +39,36 @@ int	ft_fill_write_start_free(t_print *arg, char *str, char c)
 int	ft_treat_s(va_list args, t_print *arg)
 {
 	char	*str;
+	char	*ret;
 	int		i;
 
 	i = 0;
 	str = (char *)va_arg(args, char *);
 	if (!str)
 		str = "(null)";
-	if (arg->zero)
+	if (arg->minus && arg->dot)
+	{
+		ret = ft_calloc(arg->width + 1, sizeof(char));
+		ft_memset(ret, ' ', arg->width);
+		if (arg->prec > (int)ft_strlen(str))
+		{
+			ft_strlcpy(ret, str, ft_strlen(str) + 1);
+			ret[ft_strlen(str)] = ' ';
+		}
+		else
+		{
+			ft_strlcpy(ret, str, arg->prec + 1);
+			ret[arg->prec] = ' ';
+		}
+		ft_putstr_fd(ret, 1);
+		i = ft_strlen(ret);
+		free(ret);
+	}
+	else if (arg->zero)
 		i += ft_fill_write_end_free(arg, str, 48);
 	else if (arg->dot)
 	{
-		while (i < arg->width && str[i] != '\0')
+		while (i < arg->prec && str[i] != '\0')
 		{
 			ft_putchar_fd(str[i], 1);
 			i++;
