@@ -100,11 +100,17 @@ int	ft_print_d_end(t_print *arg, int data, char c, int measure)
 	char	*data2;
 
 	data2 = ft_itoa(data);
-	if (data < 0 && arg->prec)
+	if (data < 0 && arg->prec && !arg->zero)
 	{
 		ret = ft_calloc(measure + 1, sizeof(char));
 		ft_memset(ret, c, measure + 1);
 		ft_strlcpy(&ret[measure - ft_dot_nbrlen(data) + 1], &data2[1], ft_int_nbrlen(data) + 1);
+	}
+	else if (data < 0 && arg->prec && arg->zero)
+	{
+		ret = ft_calloc(measure, sizeof(char));
+		ft_memset(ret, c, measure);
+		ft_strlcpy(&ret[measure - ft_dot_nbrlen(data)], &data2[1], ft_int_nbrlen(data) + 1);
 	}
 	else if (data < 0 && arg->zero && arg->width > (int)ft_strlen(data2))
 	{
@@ -134,9 +140,15 @@ int	ft_print_d_end(t_print *arg, int data, char c, int measure)
 		if (data != 0)
 			ft_strlcpy(&ret[measure - ft_int_nbrlen(data)], data2, ft_int_nbrlen(data) + 1);
 	}
-	if ((arg->prec || arg->zero) && data < 0 && measure >= ft_dot_nbrlen(data))
+	if (arg->prec && !arg->zero && data < 0 && measure >= ft_dot_nbrlen(data))
 	{
 		ret[0] = '-';
+		ret[measure + 1] = '\0';
+	}
+	else if (arg->prec && arg->zero && data < 0 && measure >= ft_dot_nbrlen(data))
+	{
+		ft_memset(&ret[measure - arg->prec], 48, arg->prec - ft_dot_nbrlen(data));
+		ret[measure - arg->prec - 1] = '-';
 		ret[measure + 1] = '\0';
 	}
 	else if (arg->prec && arg->prec < arg->width)
@@ -145,6 +157,8 @@ int	ft_print_d_end(t_print *arg, int data, char c, int measure)
 		ft_strlcpy(&ret[arg->width - ft_strlen(data2)], data2, ft_strlen(data2) + 1);
 		ret[arg->prec] = c;
 	}
+	else if (arg->zero && !arg->dot && data < 0)
+		ret[0] = '-';
 	else if (measure > (int)ft_strlen(data2))
 		ret[measure] = '\0';
 	ft_putstr_fd(ret, 1);
