@@ -25,7 +25,7 @@ int	ft_treat_u(va_list args, t_print *arg)
 			free(ret);
 			return (arg->width);
 		}
-		else if ((arg->zero || arg->dot) && arg->width > ft_unbrlen(data))
+		else if (arg->zero && arg->width > ft_unbrlen(data))
 		{
 			ret = ft_calloc(sizeof(char), (arg->width + 1));
 			ft_memset(ret, 48, arg->width);
@@ -38,6 +38,21 @@ int	ft_treat_u(va_list args, t_print *arg)
 			free(ret);
 			return (arg->width);
 		}
+		else if (arg->dot && arg->prec >= ft_unbrlen(data))
+		{
+			ret = ft_calloc(arg->prec + 1, sizeof(char));
+			ft_memset(ret, 48, arg->prec);
+			data2 = ft_utoa(data);
+			len = ft_strlen(data2);
+			ft_strlcpy(&ret[arg->prec - len], data2, len + 1);
+			ret[arg->prec] = '\0';
+			free(data2);
+			ft_putstr_fd(ret, 1);
+			free(ret);
+			return (arg->prec);
+		}
+		else if (arg->dot && !arg->width && data == 0)
+			return (0);
 		else if ((arg->hash || arg->space) && arg->width > ft_unbrlen(data))
 		{
 			ret = ft_calloc(sizeof(char), (arg->width + 1));

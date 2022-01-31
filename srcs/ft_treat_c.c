@@ -27,6 +27,7 @@ int	ft_treated_end_c(va_list args, t_print *arg, char sep)
 	ft_putstr_fd(data, 1);
 	if (data[arg->width - 1] == '\0')
 		ft_putchar_fd('\0', 1);
+	free(data);
 	return (arg->width);
 }
 
