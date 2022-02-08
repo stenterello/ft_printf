@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   synthesis.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ddelladi <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/02/01 19:40:45 by ddelladi          #+#    #+#             */
+/*   Updated: 2022/02/01 19:40:51 by ddelladi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/ft_printf.h"
 
 int	synthesis(va_list args, t_print *arg)
@@ -15,11 +27,9 @@ int	synthesis(va_list args, t_print *arg)
 		counter += ft_treat_d(args, arg);
 	if (arg->type == 'u')
 		counter += ft_treat_u(args, arg);
-	if (arg->type == 'x')
-		counter += ft_treat_hex(args, arg);
-	if (arg->type == 'X')
-		counter += ft_treat_HEX(args, arg);
+	if (arg->type == 'x' || arg->type == 'X')
+		counter += ft_treat_x(args, arg);
 	if (arg->type == '%')
-		counter += ft_treat_percent();
+		counter += ft_treat_percent(arg);
 	return (counter);
 }

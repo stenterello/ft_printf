@@ -1,42 +1,48 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_putnbr_u_fd.c                                   :+:      :+:    :+:   */
+/*   ft_utils_ptr_2.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ddelladi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/02/01 19:39:10 by ddelladi          #+#    #+#             */
-/*   Updated: 2022/02/01 19:39:11 by ddelladi         ###   ########.fr       */
+/*   Created: 2022/02/04 17:31:01 by ddelladi          #+#    #+#             */
+/*   Updated: 2022/02/04 17:31:02 by ddelladi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/ft_printf.h"
 
-void	ft_putnbr(long n, char *str, int *i)
+int	ft_ptrnbrlen(size_t n, size_t b_len)
 {
-	if (n > 9)
+	int	i;
+
+	if (n == 0)
+		return (1);
+	i = 0;
+	while (n > 0)
 	{
-		ft_putnbr(n / 10, str, i);
-		ft_putnbr(n % 10, str, i);
+		n = n / b_len;
+		i++;
 	}
-	else
-		str[(*i)++] = n + '0';
+	return (i + 2);
 }
 
-int	ft_putnbr_u_fd(unsigned int n, int fd)
+char	*ft_utoa_base(size_t n, char *base, int b_len)
 {
-	int		count;
-	char	*data;
+	char	*ret;
+	int		len;
 
-	data = ft_utoa(n);
-	count = ft_strlen(data);
-	free(data);
-	if (n > 9)
+	len = ft_ptrnbrlen(n, b_len);
+	ret = ft_calloc(len + 1, sizeof(char));
+	if (!ret)
+		return (0);
+	ret[len--] = '\0';
+	while (len >= 0)
 	{
-		ft_putnbr_u_fd(n / 10, fd);
-		ft_putnbr_u_fd(n % 10, fd);
+		ret[len] = base[n % b_len];
+		n = n / b_len;
+		len--;
 	}
-	else
-		ft_putchar_fd(n + 48, fd);
-	return (count);
+	ret[1] = 'x';
+	return (ret);
 }

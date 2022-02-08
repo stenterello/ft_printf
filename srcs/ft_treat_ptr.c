@@ -1,73 +1,86 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_treat_ptr.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ddelladi <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/02/01 19:40:09 by ddelladi          #+#    #+#             */
+/*   Updated: 2022/02/01 19:40:10 by ddelladi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/ft_printf.h"
 
-int	ft_ptrnbrlen(size_t n)
+char	*ft_get_ptr_str(size_t data, char *base)
 {
-	int	i;
+	char	*convert;
+	char	*str;
 
-	i = 1;
-	while (n > 9)
+	convert = ft_calloc(ft_ptrnbrlen(data, 16) + 1, sizeof(char));
+	str = ft_utoa_base(data, base, 16);
+	if (!ft_strncmp(str, "0x\0", 3))
 	{
-		n /= 10;
-		i++;
+		ft_memcpy(convert, "0x", 2);
+		ft_memcpy(&convert[2], str, ft_ptrnbrlen(data, 16));
+		convert[ft_ptrnbrlen(data, 16) + 2] = '\0';
 	}
-	if (i > 10)
-		return (14);
-	return (i + 2);
+	else
+	{
+		ft_memcpy(convert, str, ft_ptrnbrlen(data, 16));
+		convert[ft_ptrnbrlen(data, 16)] = '\0';
+	}
+	free(str);
+	return (convert);
 }
 
-int	ft_fill_write_end_ptr(size_t data, char c, t_print *arg)
+char	*ft_create_str_ptr(t_print *arg, char *convert)
 {
-	char	*data2;
-	int		len;
+	char	*ret;
 
-	data2 = ft_calloc(sizeof(char), arg->width + 1);
-	ft_memset(data2, c, arg->width + 1);
-	data2[arg->width - (ft_ptrnbrlen(data))] = '\0';
-	ft_putstr_fd(data2, 1);
-	len = ft_strlen(data2);
-	ft_putstr_fd("0x", 1);
-	len += ft_putnbr_base_ptr(data, "0123456789abcdef") + 2;
-	free(data2);
-	return (len);
+	if (arg->width > (int)ft_strlen(convert) && arg->width > arg->prec)
+	{
+		ret = ft_calloc(arg->width + 3, sizeof(char));
+		ft_memset(ret, ' ', arg->width);
+	}
+	else
+	{
+		ret = ft_calloc(ft_strlen(convert) + 1, sizeof(char));
+		ft_strlcpy(ret, convert, ft_strlen(convert) + 1);
+	}
+	return (ret);
 }
 
-int	ft_fill_write_start_ptr(size_t data, char c, t_print *arg)
+void	ft_add_data_ptr(t_print *arg, char *ret, char *convert)
 {
 	int	len;
 
-	len = 2;
-	ft_putstr_fd("0x", 1);
-	len += ft_putnbr_base_ptr(data, "0123456789abcdef");
-	while (len < arg->width)
-	{
-		ft_putchar_fd(c, 1);
-		len++;
-	}
-	return (len);
+	len = ft_strlen(convert);
+	if (arg->minus && arg->width > len)
+		ft_memcpy(ret, convert, len);
+	else if (arg->width > len)
+		ft_memcpy(&ret[arg->width - len], convert, len);
 }
 
 int	ft_treat_ptr(va_list args, t_print *arg)
 {
-	size_t	data;
-	char	*base;
-	int		count;
-	char	*convert;
+	size_t			data;
+	int				count;
+	char			*convert;
+	char			*base;
+	char			*ret;
 
 	base = "0123456789abcdef";
 	data = va_arg(args, size_t);
 	count = 0;
-	convert = ft_get_hex(data, base);
-	if (arg->minus && arg->width > ft_ptrnbrlen(data))
-		count += ft_fill_write_start_ptr(data, ' ', arg);
-	else if (arg->width > ft_ptrnbrlen(data))
-		count += ft_fill_write_end_ptr(data, ' ', arg);
-	else
-	{
-		ft_putstr_fd("0x", 1);
-		count += 2;
-		count += ft_putnbr_base_ptr(data, base);
-	}
-	if (ft_strncmp(convert, "80000000", 9))
-		free(convert);
+	convert = ft_get_ptr_str(data, base);
+	if (arg->dot && !arg->prec && data == 0)
+		return (0);
+	ret = ft_create_str_ptr(arg, convert);
+	ft_add_data_ptr(arg, ret, convert);
+	free(convert);
+	ft_putstr_fd(ret, 1);
+	count = ft_strlen(ret);
+	free(ret);
 	return (count);
 }

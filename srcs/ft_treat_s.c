@@ -1,91 +1,50 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_treat_s.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ddelladi <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/02/01 19:40:13 by ddelladi          #+#    #+#             */
+/*   Updated: 2022/02/01 19:40:15 by ddelladi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/ft_printf.h"
 
-int	ft_fill_write_end_free(t_print *arg, char *str, char c)
+void	ft_add_data_s(t_print *arg, char *str, char *data)
 {
-	char	*data;
-	int		len;
+	int	len;
 
-	len = ft_strlen(str);
-	data = ft_calloc(sizeof(char), (arg->width + 1));
-	ft_memset(data, c, arg->width);
-	if (str[0] != '\0')
-		ft_strlcpy(&data[arg->width - len], str, len + 1);
-	data[arg->width] = '\0';
-	ft_putstr_fd(data, 1);
 	len = ft_strlen(data);
-	free(data);
-	return (len);
-}
-
-int	ft_fill_write_start_free(t_print *arg, char *str, char c)
-{
-	char	*data;
-	int		len;
-
-	len = ft_strlen(str);
-	data = ft_calloc(sizeof(char), (arg->width + 1));
-	ft_memset(data, c, arg->width);
-	if (str[0] != '\0')
-	{
-		ft_strlcpy(data, str, len + 1);
-		data[len] = c;
-	}
-	ft_putstr_fd(data, 1);
-	len = ft_strlen(data);
-	free(data);
-	return (len);
+	if (arg->minus && arg->prec < (int)ft_strlen(data) && arg->prec)
+		ft_memcpy(str, data, arg->prec);
+	else if (arg->minus)
+		ft_memcpy(str, data, len);
+	else if (arg->width > arg->prec)
+		ft_memcpy(&str[ft_strlen(str) - len], data, len);
+	else if (arg->dot && !arg->prec)
+		str[0] = '\0';
+	else if (arg->dot)
+		ft_memcpy(str, data, arg->prec);
+	str[ft_strlen(str)] = '\0';
 }
 
 int	ft_treat_s(va_list args, t_print *arg)
 {
-	char	*str;
+	char	*data;
 	char	*ret;
-	int		i;
+	int		count;
 
-	i = 0;
-	str = (char *)va_arg(args, char *);
-	if (!str && (!arg->prec || arg->prec >= 6))
-		str = "(null)";
-	else if (!str)
-		return (0);
-	if (arg->minus && arg->dot && arg->width)
-	{
-		ret = ft_calloc(arg->width + 1, sizeof(char));
-		ft_memset(ret, ' ', arg->width);
-		if (arg->prec > (int)ft_strlen(str))
-		{
-			ft_strlcpy(ret, str, ft_strlen(str) + 1);
-			ret[ft_strlen(str)] = ' ';
-		}
-		else
-		{
-			ft_strlcpy(ret, str, arg->prec + 1);
-			ret[arg->prec] = ' ';
-		}
-		ft_putstr_fd(ret, 1);
-		i = ft_strlen(ret);
-		free(ret);
-	}
-	else if (arg->zero)
-		i += ft_fill_write_end_free(arg, str, 48);
-	else if (arg->dot)
-	{
-		while (i < arg->prec && str[i] != '\0')
-		{
-			ft_putchar_fd(str[i], 1);
-			i++;
-		}
-	}
-	else if (arg->space && arg->width > (int)ft_strlen(str))
-		i += ft_fill_write_end_free(arg, str, 32);
-	else if (arg->minus && arg->width > (int)ft_strlen(str))
-		i += ft_fill_write_start_free(arg, str, 32);
-	else if (arg->width > (int)ft_strlen(str))
-		i += ft_fill_write_end_free(arg, str, 32);
-	else
-	{
-		i = ft_strlen(str);
-		ft_putstr_fd(str, 1);
-	}
-	return (i);
+	data = va_arg(args, char *);
+	if (!data)
+		data = "(null)";
+	ret = ft_create_str_s(arg, data);
+	if (!ret)
+		return (ft_no_flag_s(arg, data));
+	ft_add_data_s(arg, ret, data);
+	ft_putstr_fd(ret, 1);
+	count = ft_strlen(ret);
+	free(ret);
+	return (count);
 }
