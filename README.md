@@ -37,7 +37,6 @@ The "ft_printf" function supports the following formatting features:
 		```shell
 		gcc your_source.c -L. -lft_printf -o your_program
 
-
 ## Project structure 
 
 The repository structure is as follows:
