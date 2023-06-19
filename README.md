@@ -1,7 +1,5 @@
 # ft_printf
 
-![License](https://img.shields.io/badge/license-MIT-blue)
-
 The "ft_printf" repository contains the C implementation of a replica of the `printf` function with its major formatting functions and flags. This project focuses on providing a comprehensive and efficient implementation of the `printf` function.
 
 The project is implemented in C and is part of the projects completed for the curriculum at 42School. It has achieved a score of 125 out of 100.
